@@ -1,10 +1,13 @@
-import ohm from "https://unpkg.com/ohm-js@16/dist/ohm.esm.js";
+import { ohm } from "./deps.ts";
 
 import { grammar } from "./grammar.ts";
+import {
+  interpretProgram,
+  interpretFunction,
+  interpretBinaryExpr,
+} from "./interpreter/index.ts";
 import Scope from "./scope.ts";
-import { builtins } from "./builtins.ts";
 import { ASTNode } from "./types.ts";
-import interpretProgram from "./interpreter/program.ts";
 
 const parser = ohm.grammar(grammar);
 
@@ -75,35 +78,7 @@ function interpret(ast?: ASTNode, scope?: Scope): unknown {
   }
 
   if (ast.type === "FunDecl") {
-    let {
-      id: { name },
-      params,
-      body,
-      last,
-    } = ast;
-
-    const funBody = {
-      type: "function",
-      name,
-      run: (...args: { [x: string]: any }) => {
-        const funScope = new Scope({}, scope);
-
-        params.forEach((param: { name: any }, i: string | number) => {
-          funScope.store(param.name, args[i]);
-        });
-        body = body.map((b: any) => interpret(b, funScope));
-        //returns last element
-        return body[body.length - 1][0];
-      },
-    };
-
-    let containsFun = scope.lookup(name);
-
-    if (containsFun) throw new Error(`Function ${name} is redeclared`);
-
-    scope.store(name, funBody);
-
-    return;
+    return interpretFunction(ast, scope);
   }
 
   if (ast.type == "ArrayExpr") {
@@ -155,39 +130,7 @@ function interpret(ast?: ASTNode, scope?: Scope): unknown {
   }
 
   if (ast.type === "BinaryExpr") {
-    const { left, op, right } = ast;
-
-    const leftVal = interpret(left, scope);
-    const rightVal = interpret(right, scope);
-
-    switch (op) {
-      case "+":
-        return leftVal + rightVal;
-      case "-":
-        return leftVal - rightVal;
-      case "*":
-        return leftVal * rightVal;
-      case "/":
-        return leftVal / rightVal;
-      case "==":
-        return leftVal == rightVal;
-      case "===":
-        return leftVal === rightVal;
-      case "!=":
-        return leftVal != rightVal;
-      case "!==":
-        return leftVal !== rightVal;
-      case "<":
-        return leftVal < rightVal;
-      case "<=":
-        return leftVal <= rightVal;
-      case ">":
-        return leftVal > rightVal;
-      case ">=":
-        return leftVal >= rightVal;
-      default:
-        throw new Error(`unsupported binary operator ${op}`);
-    }
+    return interpretBinaryExpr(ast, scope);
   }
 
   if (ast.type === "ConditionalExpr") {
@@ -256,5 +199,13 @@ function interpret(ast?: ASTNode, scope?: Scope): unknown {
 }
 
 function run(code: string) {
-  return interpret(parser.match(code));
+  const m = parser.match(code);
+  if (m.failed()) return console.error("Syntax error");
+  return interpret();
+}
+
+while (true) {
+  const c = prompt("> ");
+  if (!c) continue;
+  run(c);
 }

@@ -1,6 +1,7 @@
+import Scope from "./scope.ts";
 import { toFateString, sleep } from "./utils.ts";
 
-export const builtins = {
+const _globalScope = {
   math: {
     PI: Math.PI,
     E: Math.E,
@@ -80,3 +81,5 @@ export const builtins = {
     },
   },
 };
+
+export const globalScope = new Scope(_globalScope)

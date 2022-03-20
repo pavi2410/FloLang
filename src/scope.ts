@@ -1,7 +1,10 @@
 export default class Scope {
-  localScope: Scope
-  parentScope: Scope | null
-  constructor(scope: Scope, parentScope: Scope | null = null) {
+  localScope: Record<string, unknown>;
+  parentScope: Scope | null;
+  constructor(
+    scope: Record<string, unknown>,
+    parentScope: Scope | null = null
+  ) {
     this.localScope = scope;
     this.parentScope = parentScope;
   }
@@ -16,12 +19,16 @@ export default class Scope {
     throw new Error("Cannot lookup symbol in scope: " + symbol);
   }
 
-  store(symbol: string | number, value: unknown) {
+  store(symbol: string, value: unknown) {
     this.localScope[symbol] = value;
   }
 
+  delete(symbol: string) {
+    delete this.localScope[symbol]
+  }
+
   //for objects
-  objset(symbol: string | number, other: string | number, value: unknown) {
-    this.localScope[symbol][other] = value;
+  objset(symbol: string, other: string, value: unknown) {
+    this.localScope[symbol][other] = value; // TODO
   }
 }

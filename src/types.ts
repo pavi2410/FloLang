@@ -9,12 +9,18 @@ export type ASTType =
   | "VarDecl"
   | "FunDecl"
   | "Assignment"
+  | "ArrayExpr"
   | "UnaryExpr"
   | "BinaryExpr"
+  | "ConditionalExpr"
+  | "IfStmt"
+  | "ObjectLiteral"
+  | "LoopStmt"
   | "comment";
 
 export type ASTNode = {
   type: ASTType;
+  id: string;
   value: unknown;
   body: ASTNode[];
 };
