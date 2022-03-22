@@ -1,4 +1,4 @@
-import { ohm } from "./deps.ts";
+import ohm from "ohm";
 
 import { grammar } from "./grammar.ts";
 import {

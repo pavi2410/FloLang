@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "ohm": "https://unpkg.com/ohm-js@16/dist/ohm.esm.js"
+  }
+}
